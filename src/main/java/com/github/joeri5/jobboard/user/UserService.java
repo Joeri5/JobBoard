@@ -3,10 +3,13 @@ package com.github.joeri5.jobboard.user;
 import com.github.joeri5.jobboard.security.jwt.JwtTokenUtil;
 import com.github.joeri5.jobboard.security.jwt.model.AuthRequest;
 import com.github.joeri5.jobboard.security.jwt.model.AuthResponse;
+import com.github.joeri5.jobboard.session.Session;
+import com.github.joeri5.jobboard.session.SessionService;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
+    private final SessionService sessionService;
+
     private final UserRepository userRepository;
 
     private final JwtTokenUtil jwtTokenUtil;
@@ -24,6 +29,15 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username);
+    }
+
+    public @Nullable User extractFromAuthentication(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal() == null) {
+            return null;
+        }
+
+        return (User) authentication.getPrincipal();
     }
 
     public User registerUser(PasswordEncoder passwordEncoder, User user) {
@@ -44,6 +58,9 @@ public class UserService implements UserDetailsService {
 
         User user = userRepository.findByEmail(email);
         String token = jwtTokenUtil.generateJwt(user);
+
+        Session session = new Session(token, user);
+        sessionService.activateSession(session);
 
         return new AuthResponse(token);
     }

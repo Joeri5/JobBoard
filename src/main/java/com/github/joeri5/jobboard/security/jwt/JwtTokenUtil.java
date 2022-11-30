@@ -18,11 +18,26 @@ import java.util.Date;
 public class JwtTokenUtil {
 
     public static final long JWT_TOKEN_VALIDITY = 3600 * 24 * 7;
-
+    public static final long JWT_TOKEN_REFRESH_AFTER = 3600L;
     @Value("${jwt.secret}")
     private String secret;
 
     private final UserRepository userRepository;
+
+    /**
+     * Generates a JWT token for the given user
+     *
+     * @param token The token to check
+     * @return Whether the token is eligible for a refresh or not
+     */
+    public boolean eligibleForRefresh(String token) {
+        DecodedJWT decodedJWT = verifyJwt(token);
+        if (decodedJWT == null) return false;
+
+        return new Date().getTime() > decodedJWT.getIssuedAt().getTime() +
+                (JWT_TOKEN_REFRESH_AFTER * 1000L);
+    }
+
 
     /**
      * Generates a JWT token for the given {@see User}

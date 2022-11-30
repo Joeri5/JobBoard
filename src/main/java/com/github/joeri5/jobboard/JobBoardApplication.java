@@ -16,20 +16,20 @@ public class JobBoardApplication {
 		SpringApplication.run(JobBoardApplication.class, args);
 	}
 
-	@Bean
-	CommandLineRunner commandLineRunner(JobRepository jobRepository) {
-		return (args) -> {
-			Job javaJob = new Job(
-					"Looking for a Java Developer",
-					"Java Developer with 2+ years of experience"
-			);
-			Job pythonJob = new Job(
-					"Looking for a Python Developer",
-					"Python Developer with 2+ years of experience"
-			);
-
-			jobRepository.saveAll(List.of(javaJob, pythonJob));
-		};
-	}
+//	@Bean
+//	CommandLineRunner commandLineRunner(JobRepository jobRepository) {
+//		return (args) -> {
+//			Job javaJob = new Job(
+//					"Looking for a Java Developer",
+//					"Java Developer with 2+ years of experience"
+//			);
+//			Job pythonJob = new Job(
+//					"Looking for a Python Developer",
+//					"Python Developer with 2+ years of experience"
+//			);
+//
+//			jobRepository.saveAll(List.of(javaJob, pythonJob));
+//		};
+//	}
 
 }
